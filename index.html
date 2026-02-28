@@ -85,8 +85,30 @@
       color: inherit;
       cursor: pointer;
       opacity: 0.75;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
     }
     .related-toggle:hover{ opacity: 1; }
+
+    /* Down-caret by default */
+    .related-toggle::after{
+      content: "";
+      width: 0.52em;
+      height: 0.52em;
+      border-right: 2px solid currentColor;
+      border-bottom: 2px solid currentColor;
+      border-radius: 1px;
+      transform: rotate(45deg) scale(0.87);
+      transform-origin: center;
+      margin-left: 0.15em;
+      transition: transform 160ms ease;
+    }
+
+    /* Up-caret when open */
+    .related-toggle[aria-expanded="true"]::after{
+      transform: rotate(-135deg) scale(0.87);
+    }
 
     /* Visual confirmation when the drawer is open */
     .related-toggle[aria-expanded="true"]{
@@ -176,22 +198,6 @@
       const btn = document.getElementById('relatedToggle');
       const drawer = document.getElementById('relatedDrawer');
 
-      function getSafeBottomPx() {
-        const probe = document.createElement('div');
-        probe.style.cssText = `
-          position: fixed;
-          left: 0;
-          bottom: 0;
-          visibility: hidden;
-          pointer-events: none;
-          padding-bottom: env(safe-area-inset-bottom);
-        `;
-        document.body.appendChild(probe);
-        const px = parseFloat(getComputedStyle(probe).paddingBottom) || 0;
-        probe.remove();
-        return px;
-      }
-
       function setOpen(open){
         btn.setAttribute('aria-expanded', open ? 'true' : 'false');
         drawer.setAttribute('aria-hidden', open ? 'false' : 'true');
@@ -199,9 +205,8 @@
         document.body.classList.toggle('related-open', open);
 
         if (open) {
-          const safeBottom = getSafeBottomPx();
           const drawerHeight = drawer.getBoundingClientRect().height;
-          btn.style.bottom = `${drawerHeight + 14 + safeBottom}px`;
+          btn.style.bottom = `${drawerHeight + 14}px`; // fixed: no extra safeBottom
         } else {
           btn.style.bottom = '';
         }
